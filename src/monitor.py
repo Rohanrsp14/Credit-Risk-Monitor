@@ -33,6 +33,7 @@ FRED_SERIES_PATH = PROCESSED_DIR / "fred_series.csv"
 CHAMPION_PATH = MODELS_DIR / "champion_lr.pkl"
 CHALLENGER_PATH = MODELS_DIR / "challenger_xgb.pkl"
 COHORT_OUTPUT_PATH = OUTPUTS_DIR / "cohort_delinquency.csv"
+PSI_MONITORING_PATH = OUTPUTS_DIR / "psi_monitoring.csv"
 
 # Risk-tier multipliers applied to the FRED DRCCLACBS (Delinquency Rate on
 # Credit Card Loans, All Commercial Banks) baseline as a proxy for relative
@@ -115,6 +116,9 @@ def run():
     OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
     curves.to_csv(COHORT_OUTPUT_PATH, index=False)
     print(f"\nSaved cohort delinquency projection to {COHORT_OUTPUT_PATH}")
+
+    drift_results.to_csv(PSI_MONITORING_PATH, index=False)
+    print(f"Saved PSI monitoring results to {PSI_MONITORING_PATH}")
 
     return curves, drift_results
 

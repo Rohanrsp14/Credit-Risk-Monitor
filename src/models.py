@@ -36,6 +36,7 @@ HMDA_FEATURES_PATH = PROCESSED_DIR / "hmda_features.csv"
 CHAMPION_PATH = MODELS_DIR / "champion_lr.pkl"
 CHALLENGER_PATH = MODELS_DIR / "challenger_xgb.pkl"
 EVAL_PATH = OUTPUTS_DIR / "model_evaluation.csv"
+DECILE_LIFT_PATH = OUTPUTS_DIR / "decile_lift.csv"
 
 RANDOM_STATE = 42
 TEST_SIZE = 0.2
@@ -228,6 +229,7 @@ def decile_lift_table(y_test, test_scores, name):
 
     overall_rate = df["y"].mean()
     table["lift"] = table["approval_rate"] / overall_rate
+    table.insert(0, "model", name)
 
     print(f"\n=== {name}: decile lift table (1 = highest predicted score) ===")
     print(table)
@@ -245,8 +247,10 @@ def run():
     champion_metrics = evaluate_model(champion, X_train, y_train, X_test, y_test, "Champion (Logistic Regression)")
     challenger_metrics = evaluate_model(challenger, X_train, y_train, X_test, y_test, "Challenger (XGBoost)")
 
-    decile_lift_table(y_test, champion.predict_proba(X_test)[:, 1], "Champion (Logistic Regression)")
-    decile_lift_table(y_test, challenger.predict_proba(X_test)[:, 1], "Challenger (XGBoost)")
+    champion_decile = decile_lift_table(y_test, champion.predict_proba(X_test)[:, 1], "Champion (Logistic Regression)")
+    challenger_decile = decile_lift_table(
+        y_test, challenger.predict_proba(X_test)[:, 1], "Challenger (XGBoost)"
+    )
 
     comparison = pd.DataFrame([champion_metrics, challenger_metrics])
     print("\n=== Champion vs Challenger comparison ===")
@@ -262,6 +266,10 @@ def run():
     OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
     comparison.to_csv(EVAL_PATH, index=False)
     print(f"Saved evaluation metrics to {EVAL_PATH}")
+
+    decile_lift = pd.concat([champion_decile, challenger_decile]).reset_index()
+    decile_lift.to_csv(DECILE_LIFT_PATH, index=False)
+    print(f"Saved decile lift tables to {DECILE_LIFT_PATH}")
 
     return comparison
 
