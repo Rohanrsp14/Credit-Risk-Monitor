@@ -4,6 +4,9 @@ venv/
 # Raw data (large, redistributable from source)
 data/raw/*.csv
 
+# Processed data (large, regenerable via src/ loaders)
+data/processed/*.csv
+
 # Secrets
 .env
 
