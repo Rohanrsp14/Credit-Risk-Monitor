@@ -1,0 +1,18 @@
+# Virtual environment
+venv/
+
+# Raw data (large, redistributable from source)
+data/raw/*.csv
+
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.pyc
+
+# Model artifacts
+models/*.pkl
+
+# Generated outputs
+outputs/
