@@ -17,5 +17,9 @@ __pycache__/
 # Model artifacts
 models/*.pkl
 
-# Generated outputs
-outputs/
+# Generated outputs — small artifacts (csv/html) are committed so
+# Streamlit Cloud has real data to read; anything else (e.g. future
+# large exports) stays ignored by default.
+outputs/*
+!outputs/*.csv
+!outputs/*.html

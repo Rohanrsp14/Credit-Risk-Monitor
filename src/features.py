@@ -1,10 +1,15 @@
 """Feature engineering and risk segmentation on cleaned HMDA data.
 
 Input:  data/processed/hmda_clean.csv (produced by src/data_loader.py)
-Output: data/processed/hmda_features.csv
+Output: data/processed/hmda_features.csv, outputs/dashboard_summary.csv
 
 Adds: approved (target), dti_bucket, income_tier, loan_size_bucket,
 risk_segment, is_minority, county_fips.
+
+dashboard_summary.csv (total_applications, approval_rate) exists so
+dashboard/app.py can render its KPI cards without loading the full
+~370MB hmda_features.csv — that file is gitignored (too large for
+GitHub) and unavailable on Streamlit Cloud.
 """
 
 from pathlib import Path
@@ -12,9 +17,12 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-PROCESSED_DIR = Path(__file__).resolve().parent.parent / "data" / "processed"
+BASE_DIR = Path(__file__).resolve().parent.parent
+PROCESSED_DIR = BASE_DIR / "data" / "processed"
+OUTPUTS_DIR = BASE_DIR / "outputs"
 HMDA_CLEAN_PATH = PROCESSED_DIR / "hmda_clean.csv"
 HMDA_FEATURES_PATH = PROCESSED_DIR / "hmda_features.csv"
+DASHBOARD_SUMMARY_PATH = OUTPUTS_DIR / "dashboard_summary.csv"
 
 # --- dti_bucket -------------------------------------------------------
 # HMDA reports debt_to_income_ratio as either a bucketed string
@@ -173,6 +181,13 @@ def build_features():
     PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
     df.to_csv(HMDA_FEATURES_PATH, index=False)
     print(f"\nSaved features to {HMDA_FEATURES_PATH}")
+
+    OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
+    summary = pd.DataFrame(
+        [{"total_applications": len(df), "approval_rate": df["approved"].mean()}]
+    )
+    summary.to_csv(DASHBOARD_SUMMARY_PATH, index=False)
+    print(f"Saved dashboard summary to {DASHBOARD_SUMMARY_PATH}")
 
     return df
 

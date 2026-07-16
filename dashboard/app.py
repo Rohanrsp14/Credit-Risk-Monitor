@@ -1,13 +1,19 @@
 """Streamlit dashboard for the Credit Risk Monitor framework.
 
-Reads pre-computed outputs from outputs/ and data/processed/ — run the
-src/ pipeline scripts first (data_loader.py, features.py, models.py,
-monitor.py, fair_lending.py, choropleth.py) to (re)generate them.
+Reads pre-computed outputs from outputs/ — these are committed to the repo
+(see .gitignore) so the dashboard works on Streamlit Cloud out of the box.
+If outputs/model_evaluation.csv is missing (e.g. a fresh local clone with
+raw data present but no pipeline run yet), setup.py runs automatically.
+Note: on Streamlit Cloud that auto-run cannot succeed from a cold start —
+data/raw/hmda_2022_tx.csv (525MB) is gitignored and can never be present
+there — so the committed outputs/ files are the real fix for deployment;
+the auto-run is a local-dev convenience only.
 
 This dashboard visualizes an analytical/portfolio framework, not a
 production underwriting system — see CLAUDE.md never-do/always-do rules.
 """
 
+import sys
 from pathlib import Path
 
 import pandas as pd
@@ -35,11 +41,28 @@ MODEL_COLORS = {
 
 st.set_page_config(page_title="Credit Risk Monitor", layout="wide")
 
+MODEL_EVAL_PATH = OUTPUTS_DIR / "model_evaluation.csv"
+if not MODEL_EVAL_PATH.exists():
+    with st.spinner("Running pipeline setup..."):
+        sys.path.insert(0, str(BASE_DIR))
+        import setup as pipeline_setup
+
+        try:
+            pipeline_setup.run()
+        except Exception as e:
+            st.error(
+                "Pipeline setup failed — this dashboard expects committed files under "
+                "outputs/ (see .gitignore) rather than regenerating from raw data on "
+                "Streamlit Cloud, since data/raw/hmda_2022_tx.csv (525MB) can't be "
+                f"present there.\n\nUnderlying error: {e}"
+            )
+            st.stop()
+
 
 @st.cache_data
 def load_applications_summary():
-    df = pd.read_csv(PROCESSED_DIR / "hmda_features.csv", usecols=["approved"])
-    return len(df), df["approved"].mean()
+    df = pd.read_csv(OUTPUTS_DIR / "dashboard_summary.csv")
+    return int(df["total_applications"].iloc[0]), float(df["approval_rate"].iloc[0])
 
 
 @st.cache_data
@@ -54,7 +77,7 @@ st.caption(
 )
 
 REQUIRED_FILES = {
-    "data/processed/hmda_features.csv": PROCESSED_DIR / "hmda_features.csv",
+    "outputs/dashboard_summary.csv": OUTPUTS_DIR / "dashboard_summary.csv",
     "outputs/model_evaluation.csv": OUTPUTS_DIR / "model_evaluation.csv",
     "outputs/decile_lift.csv": OUTPUTS_DIR / "decile_lift.csv",
     "outputs/cohort_delinquency.csv": OUTPUTS_DIR / "cohort_delinquency.csv",
@@ -65,9 +88,8 @@ REQUIRED_FILES = {
 missing = [label for label, path in REQUIRED_FILES.items() if not path.exists()]
 if missing:
     st.error(
-        "Missing required output files — run the src/ pipeline scripts first "
-        "(data_loader.py, features.py, models.py, monitor.py, fair_lending.py, "
-        "choropleth.py):\n\n" + "\n".join(f"- {m}" for m in missing)
+        "Missing required output files even after pipeline setup:\n\n"
+        + "\n".join(f"- {m}" for m in missing)
     )
     st.stop()
 

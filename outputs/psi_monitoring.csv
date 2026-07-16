@@ -1,0 +1,3 @@
+model,psi,alert
+Champion (Logistic Regression),6.416440780680055e-05,stable
+Challenger (XGBoost),2.5544497303012753e-05,stable
