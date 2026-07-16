@@ -87,9 +87,19 @@ Then launch the dashboard:
 streamlit run dashboard/app.py
 ```
 
-### Screenshot
+## Dashboard
 
-<!-- TODO: add a dashboard screenshot here, e.g. ![Dashboard](docs/dashboard_screenshot.png) -->
+### Model Performance
+![Model Performance](screenshots/Model_Performance.png)
+
+### Cohort Tracking
+![Cohort Tracking](screenshots/Cohort_Tracking.png)
+
+### Fair Lending
+![Fair Lending](screenshots/Fair_Lending.png)
+
+### Texas Heatmap
+![Texas Heatmap](screenshots/Texas_Heatmap.png)
 
 ## Regulatory Framework Context
 
