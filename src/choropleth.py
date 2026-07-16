@@ -64,9 +64,13 @@ def _read_geojson(path):
 
 
 def build_county_stats():
-    df = pd.read_csv(HMDA_FEATURES_PATH, low_memory=False)
+    # county_fips must be read as str: it's an all-numeric-looking column
+    # ("48201"), so pandas' default dtype inference silently reads it as
+    # float64 (48201.0), which later stringifies to "48201.0" and fails to
+    # join against the GeoJSON's zero-padded 5-char string ids ("48201").
+    df = pd.read_csv(HMDA_FEATURES_PATH, low_memory=False, dtype={"county_fips": str})
     df = df.dropna(subset=["county_fips"]).copy()
-    df["county_fips"] = df["county_fips"].astype(str).str.zfill(5)
+    df["county_fips"] = df["county_fips"].str.zfill(5)
 
     stats = (
         df.groupby("county_fips")
