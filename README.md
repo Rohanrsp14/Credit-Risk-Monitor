@@ -1,20 +1,5 @@
 # Credit Risk Monitor
 
-[![Live Dashboard](https://img.shields.io/badge/dashboard-live-brightgreen)](credit-risk-monitor.streamlit.app)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-
-A credit risk monitoring framework for consumer installment lenders, built on real
-HMDA 2022 Texas mortgage data (868K applications) and CFPB complaints. A challenger
-XGBoost model (AUC 0.81) outperforms the logistic regression champion (AUC 0.74) —
-and the fair-lending screen flags **3 of 6 demographic groups below the CFPB
-four-fifths threshold**, a real, specific disparity finding, not a toy result.
-
-**[▶ Try the live dashboard](credit-risk-monitor.streamlit.app)**
-
-![Fair Lending](screenshots/Fair_Lending.png)
-
-# Credit Risk Monitor
-
 A credit risk monitoring framework for consumer installment lenders operating at
 the Regional Finance tier (mid-size, near-prime/subprime consumer lenders). It
 combines public mortgage-lending data (HMDA) and consumer complaint data (CFPB),
